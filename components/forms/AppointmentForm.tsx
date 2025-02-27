@@ -53,11 +53,9 @@ export const AppointmentForm = ({
     },
   });
 
-  const onSubmit = async (
-    values: z.infer<typeof AppointmentFormValidation>
-  ) => {
+  const onSubmit = async (values: z.infer<typeof AppointmentFormValidation>) => {
     setIsLoading(true);
-
+  
     let status;
     switch (type) {
       case "schedule":
@@ -69,7 +67,7 @@ export const AppointmentForm = ({
       default:
         status = "pending";
     }
-
+  
     try {
       if (type === "create" && patientId) {
         const appointment = {
@@ -81,9 +79,9 @@ export const AppointmentForm = ({
           status: status as Status,
           note: values.note,
         };
-
+  
         const newAppointment = await createAppointment(appointment);
-
+  
         if (newAppointment) {
           form.reset();
           router.push(
@@ -94,6 +92,7 @@ export const AppointmentForm = ({
         const appointmentToUpdate = {
           userId,
           appointmentId: appointment?.$id!,
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone, // Moved outside appointment
           appointment: {
             primaryPhysician: values.primaryPhysician,
             schedule: new Date(values.schedule),
@@ -102,9 +101,9 @@ export const AppointmentForm = ({
           },
           type,
         };
-
+  
         const updatedAppointment = await updateAppointment(appointmentToUpdate);
-
+  
         if (updatedAppointment) {
           setOpen && setOpen(false);
           form.reset();
@@ -115,7 +114,6 @@ export const AppointmentForm = ({
     }
     setIsLoading(false);
   };
-
   let buttonLabel;
   switch (type) {
     case "cancel":
